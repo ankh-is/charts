@@ -21,4 +21,32 @@ entries:
     urls:
     - https://github.com/ankh-is/charts/releases/download/Consul-0.1.1/Consul-0.1.1.tgz
     version: 0.1.1
-generated: "2021-04-13T08:19:53.185975659Z"
+  localstack:
+  - annotations:
+      category: Infrastructure
+    apiVersion: v2
+    appVersion: latest
+    created: "2021-04-13T08:38:23.560384206Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      version: 1.x.x
+    description: A fully functional local AWS cloud stack
+    digest: 05e1fe8c6d531c5eb1b0f8998da770c0cf7ec264bc3e2033a18ebaaa6192ccf7
+    icon: https://github.com/localstack/localstack/raw/master/localstack/dashboard/web/img/localstack.png
+    keywords:
+    - aws
+    - localstack
+    maintainers:
+    - email: nerds@ankh.is
+      name: Nerds
+    name: localstack
+    sources:
+    - https://localstack.cloud/
+    - https://github.com/localstack/localstack
+    - https://ankh-is.github.io/charts/
+    type: application
+    urls:
+    - https://github.com/ankh-is/charts/releases/download/localstack-0.1.26/localstack-0.1.26.tgz
+    version: 0.1.26
+generated: "2021-04-13T08:38:23.560391707Z"
