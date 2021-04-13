@@ -11,10 +11,10 @@ consul:
       enableAutoEncrypt: true
     acls:
       manageSystemACLs: true
-      createReplicationToken: false # set to true for the primary datacenter install
+      createReplicationToken: false  # set to true for the primary datacenter install
     federation:
       enabled: true
-      createFederationSecret: false # set to true for the primary datacenter install
+      createFederationSecret: false  # set to true for the primary datacenter install
   connectInject:
     enabled: true
   meshGateway:
