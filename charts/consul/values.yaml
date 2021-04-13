@@ -1,0 +1,33 @@
+charts:
+  consul: true
+
+###############################################################################
+# Consul Overrides
+consul:
+  global:
+    datacenter: auw2
+    tls:
+      enabled: true
+      enableAutoEncrypt: true
+    acls:
+      manageSystemACLs: true
+      createReplicationToken: false  # set to true for the primary datacenter install
+    federation:
+      enabled: true
+      createFederationSecret: false  # set to true for the primary datacenter install
+  connectInject:
+    enabled: true
+  meshGateway:
+    enabled: true
+  ingressGateways:
+    enabled: true
+  terminatingGateways:
+    enabled: true
+  controller:
+    enabled: true
+  client:
+    tolerations: |
+      - key: "sku"
+        operator: "Equal"
+        value: "cpu"
+        effect: "NoSchedule"
