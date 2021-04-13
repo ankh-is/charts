@@ -1,0 +1,8 @@
+chart-dirs:
+  - charts
+chart-repos:
+  - ankh=https://ankh-is.github.io/charts
+debug: true
+excluded-charts:
+  - common
+remote: origin
