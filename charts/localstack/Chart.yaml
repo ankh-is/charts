@@ -12,10 +12,11 @@ keywords:
 sources:
 - https://localstack.cloud/
 - https://github.com/localstack/localstack
+- https://ankh-is.github.io/charts/
 icon: https://github.com/localstack/localstack/raw/master/localstack/dashboard/web/img/localstack.png
 maintainers:
-- name: Waldemar Hummer
-  email: waldemar.hummer@gmail.com
+- name: Nerds
+  email: nerds@ankh.is
 dependencies:
 - name: common
   version: 1.x.x
