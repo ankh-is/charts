@@ -1,0 +1,245 @@
+charts:
+  metricbeat: true
+
+metricbeat:
+  podAnnotations: {}
+    #prometheus.io/scrape: "true"
+    #prometheus.io/port: "7332"
+    #consul.hashicorp.com/connect-inject: "true"
+  daemonset:
+    annotations: {}
+      #consul.hashicorp.com/connect-inject: "true"
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "100Mi"
+      limits:
+        cpu: "300m"
+        memory: "200Mi"
+    secretMounts:
+    - name: elastic-certificate-pem
+      secretName: elastic-certificate-pem
+      path: /usr/share/metricbeat/config/certs
+    extraEnvs:
+    - name: 'ELASTICSEARCH_USERNAME'
+      valueFrom:
+        secretKeyRef:
+          name: elastic-credentials
+          key: username
+    - name: 'ELASTICSEARCH_PASSWORD'
+      valueFrom:
+        secretKeyRef:
+          name: elastic-credentials
+          key: password
+    - name: 'KIBANA_ENCRYPTION_KEY'
+      valueFrom:
+        secretKeyRef:
+          name: kibana
+          key: encryptionkey
+    metricbeatConfig:
+      metricbeat.yml: |
+        http.enabled: true
+        metricbeat.modules:
+        - module: elasticsearch
+          xpack.enabled: true
+          period: 10s
+          username: '${ELASTICSEARCH_USERNAME}'
+          password: '${ELASTICSEARCH_PASSWORD}'
+          protocol: https
+          ssl.certificate_authorities:
+            - /usr/share/metricbeat/config/certs/elastic-certificate.pem
+          hosts: ['https://elasticsearch-master:9200']
+        - module: kibana
+          metricsets:
+            - stats
+          period: 10s
+          hosts: ["https://kibana-kibana:5601"]
+          username: '${ELASTICSEARCH_USERNAME}'
+          password: '${ELASTICSEARCH_PASSWORD}'
+          protocol: https
+          ssl.certificate_authorities:
+            - /usr/share/metricbeat/config/certs/elastic-certificate.pem
+          xpack.enabled: true
+        - module: beat
+          metricsets:
+            - stats
+            - state
+          period: 10s
+          hosts: ["http://localhost:5066"]
+          #ssl.certificate_authorities: ["/etc/pki/root/ca.pem"]
+
+          # Set to true to send data collected by module to X-Pack
+          # Monitoring instead of metricbeat-* indices.
+          xpack.enabled: true
+        #- module: logstash
+        #  metricsets:
+        #    - node
+        #    - node_stats
+        #  period: 10s
+        #  hosts: ["logstash-logstash-headless:9600"]
+        #  #username: "user"
+        #  #password: "secret"
+        #  xpack.enabled: true
+        #- module: consul
+        #  metricsets:
+        #  - agent
+        #  enabled: true
+        #  period: 10s
+        #  hosts: ["https://consul-consul-server:8501"]
+        #  ssl.enabled: true
+        #  ssl.verification_mode: "none"
+        #  ssl.certificate_authorities:
+        #    - /usr/share/metricbeat/certs/ca
+        - module: kubernetes
+          enabled: true
+          metricsets:
+            - state_node
+            - state_daemonset
+            - state_deployment
+            - state_replicaset
+            - state_statefulset
+            - state_pod
+            - state_container
+            - state_cronjob
+            - state_resourcequota
+            - state_service
+            - state_persistentvolume
+            - state_persistentvolumeclaim
+            - state_storageclass
+            # Uncomment this to get k8s events:
+            #- event  period: 10s
+          hosts: ["metricbeat-kube-state-metrics:8080"]
+          # Enriching parameters:
+          add_metadata: true
+        - module: kubernetes
+          metricsets:
+            - container
+            - node
+            - pod
+            - system
+            - volume
+          period: 10s
+          host: "${NODE_NAME}"
+          hosts: ["https://${NODE_NAME}:10250"]
+          bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+          ssl.verification_mode: "none"
+          # If using Red Hat OpenShift remove ssl.verification_mode entry and
+          # uncomment these settings:
+          #ssl.certificate_authorities:
+            #- /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt
+          processors:
+          - add_kubernetes_metadata: ~
+        - module: kubernetes
+          enabled: true
+          metricsets:
+            - event
+        - module: system
+          period: 10s
+          metricsets:
+            - cpu
+            - load
+            - memory
+            - network
+            - process
+            - process_summary
+          processes: ['.*']
+          process.include_top_n:
+            by_cpu: 5
+            by_memory: 5
+        - module: system
+          period: 1m
+          metricsets:
+            - filesystem
+            - fsstat
+          processors:
+          - drop_event.when.regexp:
+              system.filesystem.mount_point: '^/(sys|proc|dev|etc|host|lib)($|/)'
+        output.elasticsearch:
+          username: '${ELASTICSEARCH_USERNAME}'
+          password: '${ELASTICSEARCH_PASSWORD}'
+          protocol: https
+          ssl.certificate_authorities:
+            - /usr/share/metricbeat/config/certs/elastic-certificate.pem
+          hosts: ['https://elasticsearch-master:9200']
+        setup.kibana:
+          host: "https://kibana-kibana:5601"
+          username: '${ELASTICSEARCH_USERNAME}'
+          password: '${ELASTICSEARCH_PASSWORD}'
+          protocol: https
+          ssl.certificate_authorities:
+            - /usr/share/metricbeat/config/certs/elastic-certificate.pem
+  deployment:
+    #annotations:
+    #  consul.hashicorp.com/connect-inject: "true"
+    extraEnvs:
+    - name: 'ELASTICSEARCH_USERNAME'
+      valueFrom:
+        secretKeyRef:
+          name: elastic-credentials
+          key: username
+    - name: 'ELASTICSEARCH_PASSWORD'
+      valueFrom:
+        secretKeyRef:
+          name: elastic-credentials
+          key: password
+    metricbeatConfig:
+      metricbeat.yml: |
+        http.enabled: true
+        metricbeat.autodiscover:
+          providers:
+            - type: kubernetes
+              host: ${HOSTNAME}
+              templates:
+                - condition.equals:
+                    kubernetes.annotations.prometheus.io/scrape: "true"
+                  config:
+                    - module: prometheus
+                      period: 10s
+                      # Prometheus exporter host / port
+                      hosts: ["${data.host}:${data.kubernetes.annotations.prometheus.io/port}"]
+                      metrics_path: /metrics
+        metricbeat.modules:
+        - module: elasticsearch
+          xpack.enabled: true
+          period: 10s
+          username: '${ELASTICSEARCH_USERNAME}'
+          password: '${ELASTICSEARCH_PASSWORD}'
+          protocol: https
+          ssl.certificate_authorities:
+            - /usr/share/metricbeat/config/certs/elastic-certificate.pem
+          hosts: ['https://elasticsearch-master:9200']
+        - module: kubernetes
+          enabled: true
+          metricsets:
+            - state_node
+            - state_deployment
+            - state_replicaset
+            - state_pod
+            - state_container
+          period: 10s
+          hosts: ["${KUBE_STATE_METRICS_HOSTS}"]
+        output.elasticsearch:
+          username: '${ELASTICSEARCH_USERNAME}'
+          password: '${ELASTICSEARCH_PASSWORD}'
+          protocol: https
+          ssl.certificate_authorities:
+            - /usr/share/metricbeat/config/certs/elastic-certificate.pem
+          hosts: ['https://elasticsearch-master:9200']
+        setup.kibana:
+          host: "https://kibana-kibana:5601"
+          username: '${ELASTICSEARCH_USERNAME}'
+          password: '${ELASTICSEARCH_PASSWORD}'
+          protocol: https
+          ssl.certificate_authorities:
+            - /usr/share/metricbeat/config/certs/elastic-certificate.pem
+    secretMounts:
+    - name: elastic-certificate-pem
+      secretName: elastic-certificate-pem
+      path: /usr/share/metricbeat/config/certs
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "100Mi"
+      limits:
+        cpu: "300m"
+        memory: "200Mi"
