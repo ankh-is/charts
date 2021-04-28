@@ -21,6 +21,48 @@ entries:
     urls:
     - https://github.com/ankh-is/charts/releases/download/Consul-0.1.1/Consul-0.1.1.tgz
     version: 0.1.1
+  elasticsearch:
+  - annotations:
+      category: Infrastructure
+    apiVersion: v2
+    appVersion: 1.16.0
+    created: "2021-04-28T03:53:43.387266041Z"
+    dependencies:
+    - condition: charts.elasticsearch
+      name: elasticsearch
+      repository: https://helm.elastic.co
+      version: 7.11.x
+    description: Ankh Managed Elasticsearch TLS Chart
+    digest: da8ea11054f37bc9e65df73fdeead250e9f7b7171cfbc17011265619b9f4413c
+    maintainers:
+    - email: nerds@ankh.is
+      name: Ankh
+    name: elasticsearch
+    type: application
+    urls:
+    - https://github.com/ankh-is/charts/releases/download/elasticsearch-0.1.0/elasticsearch-0.1.0.tgz
+    version: 0.1.0
+  kibana:
+  - annotations:
+      category: Infrastructure
+    apiVersion: v2
+    appVersion: 1.16.0
+    created: "2021-04-28T03:53:43.527899563Z"
+    dependencies:
+    - condition: charts.kibana
+      name: kibana
+      repository: https://helm.elastic.co
+      version: 7.11.x
+    description: Ankh Managed Kibana with TLS
+    digest: ec67bf7f4bad0efe8244b6c2cb980e9881511c2c7fd6542c525d7631310c5b98
+    maintainers:
+    - email: nerds@ankh.is
+      name: Ankh
+    name: kibana
+    type: application
+    urls:
+    - https://github.com/ankh-is/charts/releases/download/kibana-0.1.0/kibana-0.1.0.tgz
+    version: 0.1.0
   localstack:
   - annotations:
       category: Infrastructure
@@ -49,4 +91,4 @@ entries:
     urls:
     - https://github.com/ankh-is/charts/releases/download/localstack-0.1.26/localstack-0.1.26.tgz
     version: 0.1.26
-generated: "2021-04-13T08:38:23.560391707Z"
+generated: "2021-04-28T03:53:43.527906663Z"
