@@ -1,6 +1,12 @@
 apiVersion: v2
 name: elasticsearch
-description: A Helm chart for Kubernetes
+description: Ankh Managed Elasticsearch TLS Chart
+
+annotations:
+  category: Infrastructure
+maintainers:
+  - email: nerds@ankh.is
+    name: Ankh
 
 # A chart can be either an 'application' or a 'library' chart.
 #

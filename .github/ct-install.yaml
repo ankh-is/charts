@@ -2,6 +2,7 @@ chart-dirs:
   - charts
 chart-repos:
   - ankh=https://ankh-is.github.io/charts
+  - elastic=https://helm.elastic.co
 debug: true
 excluded-charts:
   - common
