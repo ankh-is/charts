@@ -1,0 +1,8 @@
+monitoring:
+  type: http
+  serviceName:
+    hello: "https://hello.ankh.is"
+  secretMounts:
+    - name: elastic-certificate-pem
+      secretName: elastic-certificate-pem
+      path: /usr/share/metricbeat/config/certs
