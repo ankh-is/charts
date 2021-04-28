@@ -1,0 +1,125 @@
+charts:
+  filebeat: true
+
+filebeat:
+  daemonset:
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "100Mi"
+      limits:
+        cpu: "300m"
+        memory: "200Mi"
+    extraEnvs:
+    - name: 'ELASTICSEARCH_USERNAME'
+      valueFrom:
+        secretKeyRef:
+          name: elastic-credentials
+          key: username
+    - name: 'ELASTICSEARCH_PASSWORD'
+      valueFrom:
+        secretKeyRef:
+          name: elastic-credentials
+          key: password
+    secretMounts:
+    - name: elastic-certificate-pem
+      secretName: elastic-certificate-pem
+      path: /usr/share/metricbeat/config/certs
+    filebeatConfig:
+      filebeat.yml: |
+        http.enabled: true
+        filebeat.modules:
+        - module: elasticsearch
+          # Server log
+          server:
+            enabled: true
+
+            # Set custom paths for the log files. If left empty,
+            # Filebeat will choose the paths depending on your OS.
+            #var.paths:
+            #  - /var/log/elasticsearch/*.log          # Plain text logs
+            #  - /var/log/elasticsearch/*_server.json  # JSON logs
+
+          gc:
+            enabled: true
+            # Set custom paths for the log files. If left empty,
+            # Filebeat will choose the paths depending on your OS.
+            #var.paths:
+            #  - /var/log/elasticsearch/gc.log.[0-9]*
+            #  - /var/log/elasticsearch/gc.log
+
+          audit:
+            enabled: true
+            # Set custom paths for the log files. If left empty,
+            # Filebeat will choose the paths depending on your OS.
+            #var.paths:
+
+          slowlog:
+            enabled: true
+            # Set custom paths for the log files. If left empty,
+            # Filebeat will choose the paths depending on your OS.
+            #var.paths:
+
+          deprecation:
+            enabled: true
+            # Set custom paths for the log files. If left empty,
+            # Filebeat will choose the paths depending on your OS.
+            #var.paths:
+        - module: kibana
+          # Server logs
+          log:
+            enabled: true
+
+            # Set custom paths for the log files. If left empty,
+            # Filebeat will choose the paths depending on your OS.
+            #var.paths:
+
+          # Audit logs
+          audit:
+            enabled: true
+        filebeat.inputs:
+        - type: container
+          paths:
+            - /var/log/containers/*.log
+          processors:
+          - add_kubernetes_metadata:
+              host: ${NODE_NAME}
+              matchers:
+              - logs_path:
+                  logs_path: "/var/log/containers/"
+        output.elasticsearch:
+          enabled: true
+          username: '${ELASTICSEARCH_USERNAME}'
+          password: '${ELASTICSEARCH_PASSWORD}'
+          protocol: https
+          ssl.certificate_authorities:
+            - /usr/share/metricbeat/config/certs/elastic-certificate.pem
+          hosts: ['https://${ELASTICSEARCH_HOSTS:elasticsearch-master:9200}']
+        #output.logstash:
+        #  enabled: true
+        #  hosts: ['observability-logstash:9600']
+        setup.kibana:
+          host: "https://kibana-kibana:5601"
+          username: '${ELASTICSEARCH_USERNAME}'
+          password: '${ELASTICSEARCH_PASSWORD}'
+          protocol: https
+          ssl.certificate_authorities:
+            - /usr/share/metricbeat/config/certs/elastic-certificate.pem
+        monitoring:
+          enabled: true
+          # cluster_uuid: "some_hash_here"
+          elasticsearch:
+            username: '${ELASTICSEARCH_USERNAME}'
+            password: '${ELASTICSEARCH_PASSWORD}'
+            protocol: https
+            ssl.certificate_authorities:
+              - /usr/share/metricbeat/config/certs/elastic-certificate.pem
+            hosts: ['https://${ELASTICSEARCH_HOSTS:elasticsearch-master:9200}']
+  deployment:
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "100Mi"
+      limits:
+        cpu: "300m"
+        memory: "200Mi"
