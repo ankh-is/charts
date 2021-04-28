@@ -42,6 +42,22 @@ entries:
     urls:
     - https://github.com/ankh-is/charts/releases/download/elasticsearch-0.1.0/elasticsearch-0.1.0.tgz
     version: 0.1.0
+  filebeat:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2021-04-28T06:36:13.411958001Z"
+    dependencies:
+    - condition: charts.filebeat
+      name: filebeat
+      repository: https://helm.elastic.co
+      version: 7.11.x
+    description: A Helm chart for Kubernetes
+    digest: 6b5f6c9c6ce7834a0bd81a93ad874450cf317b275b124afbd17b5a9b9eea4fe9
+    name: filebeat
+    type: application
+    urls:
+    - https://github.com/ankh-is/charts/releases/download/filebeat-0.1.0/filebeat-0.1.0.tgz
+    version: 0.1.0
   kibana:
   - annotations:
       category: Infrastructure
@@ -112,4 +128,4 @@ entries:
     urls:
     - https://github.com/ankh-is/charts/releases/download/metricbeat-0.1.0/metricbeat-0.1.0.tgz
     version: 0.1.0
-generated: "2021-04-28T06:12:05.714212816Z"
+generated: "2021-04-28T06:36:13.411965902Z"
