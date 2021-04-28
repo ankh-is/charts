@@ -91,4 +91,25 @@ entries:
     urls:
     - https://github.com/ankh-is/charts/releases/download/localstack-0.1.26/localstack-0.1.26.tgz
     version: 0.1.26
-generated: "2021-04-28T03:53:43.527906663Z"
+  metricbeat:
+  - annotations:
+      category: Infrastructure
+    apiVersion: v2
+    appVersion: 1.16.0
+    created: "2021-04-28T06:12:05.714205916Z"
+    dependencies:
+    - condition: charts.metricbeat
+      name: metricbeat
+      repository: https://helm.elastic.co
+      version: 7.11.x
+    description: Ankh Managed metricbeat TLS Chart
+    digest: ba1fdac271efa8f26f052202aa2b4bf431923ff8d8ac81f4ee2d940b21a1ff49
+    maintainers:
+    - email: nerds@ankh.is
+      name: Ankh
+    name: metricbeat
+    type: application
+    urls:
+    - https://github.com/ankh-is/charts/releases/download/metricbeat-0.1.0/metricbeat-0.1.0.tgz
+    version: 0.1.0
+generated: "2021-04-28T06:12:05.714212816Z"
