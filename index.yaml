@@ -63,6 +63,21 @@ entries:
       category: Infrastructure
     apiVersion: v2
     appVersion: 1.16.0
+    created: "2021-04-30T05:00:34.359375102Z"
+    description: Ankh maintained heartbeat chart with TLS for Kubernetes
+    digest: 3ca494380c1ea259fa905df5bb2b6c487a3974a1c91a8f0d1b3dccff7ed10b4f
+    maintainers:
+    - email: nerds@ankh.is
+      name: Ankh
+    name: heartbeat
+    type: application
+    urls:
+    - https://github.com/ankh-is/charts/releases/download/heartbeat-0.1.1/heartbeat-0.1.1.tgz
+    version: 0.1.1
+  - annotations:
+      category: Infrastructure
+    apiVersion: v2
+    appVersion: 1.16.0
     created: "2021-04-28T06:38:15.711825181Z"
     description: Ankh maintained heartbeat chart with TLS for Kubernetes
     digest: a32c8c21e8bb5e55395e124a160e586fd21fb4d1220fce02b80f4b5e3aecb051
@@ -144,4 +159,4 @@ entries:
     urls:
     - https://github.com/ankh-is/charts/releases/download/metricbeat-0.1.0/metricbeat-0.1.0.tgz
     version: 0.1.0
-generated: "2021-04-28T06:38:15.711834281Z"
+generated: "2021-04-30T05:00:34.359390403Z"
