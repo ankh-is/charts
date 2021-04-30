@@ -1,0 +1,204 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: heartbeat-deployment-config
+  namespace: observability
+  labels:
+    k8s-app: heartbeat
+data:
+  heartbeat.yml: |-
+    heartbeat.autodiscover:
+      # Autodiscover pods
+      providers:
+        - type: kubernetes
+          resource: pod
+          scope: cluster
+          node: ${NODE_NAME}
+          hints.enabled: true
+    #
+    #  # Autodiscover services
+    #  providers:
+        - type: kubernetes
+          resource: service
+          scope: cluster
+          node: ${NODE_NAME}
+          hints.enabled: true
+    #
+    #  # Autodiscover nodes
+    #  providers:
+        - type: kubernetes
+          resource: node
+          node: ${NODE_NAME}
+          scope: cluster
+          templates:
+            # Example, check SSH port of all cluster nodes:
+            - condition: ~
+              config:
+                - hosts:
+                    - ${data.host}:22
+                  name: ${data.kubernetes.node.name}
+                  schedule: '@every 10s'
+                  timeout: 5s
+                  type: tcp
+    heartbeat.monitors:
+      - type: http
+        urls:
+        {{- range $service, $service_uri := $.Values.monitoring.serviceName }}
+          - "{{ $service_uri }}"
+        {{- end }}
+        schedule: "@every 10s"
+
+    processors:
+      - add_cloud_metadata:
+
+    #cloud.id: ${ELASTIC_CLOUD_ID}
+    #cloud.auth: ${ELASTIC_CLOUD_AUTH}
+
+    output.elasticsearch:
+      hosts: ['https://${ELASTICSEARCH_HOST:elasticsearch-master}:${ELASTICSEARCH_PORT:9200}']
+      username: '${ELASTICSEARCH_USERNAME}'
+      password: '${ELASTICSEARCH_PASSWORD}'
+      protocol: https
+      ssl.certificate_authorities:
+        - /usr/share/metricbeat/config/certs/elastic-certificate.pem
+    setup.kibana:
+      host: "https://${KIBANA_HOST}:${KIBANA_PORT}"
+      username: '${ELASTICSEARCH_USERNAME}'
+      password: '${ELASTICSEARCH_PASSWORD}'
+      protocol: https
+      ssl.certificate_authorities:
+        - /usr/share/metricbeat/config/certs/elastic-certificate.pem
+---
+# Deploy singleton instance in the whole cluster for some unique data sources, like kube-state-metrics
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: heartbeat
+  namespace: observability
+  labels:
+    k8s-app: heartbeat
+spec:
+  selector:
+    matchLabels:
+      k8s-app: heartbeat
+  template:
+    metadata:
+      labels:
+        k8s-app: heartbeat
+    spec:
+      serviceAccountName: heartbeat
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - name: heartbeat
+        image: docker.elastic.co/beats/heartbeat:7.12.0
+        args: [
+          "-c", "/etc/heartbeat.yml",
+          "-e",
+        ]
+        env:
+        - name: ELASTICSEARCH_HOST
+          value: elasticsearch-master
+        - name: ELASTICSEARCH_PORT
+          value: "9200"
+        - name: KIBANA_HOST
+          value: kibana-kibana
+        - name: KIBANA_PORT
+          value: "5601"
+        - name: ELASTICSEARCH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: elastic-credentials
+              key: username
+        - name: ELASTICSEARCH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: elastic-credentials
+              key: password
+        #- name: ELASTIC_CLOUD_ID
+        #  value:
+        #- name: ELASTIC_CLOUD_AUTH
+        #  value:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        securityContext:
+          runAsUser: 0
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        volumeMounts:
+        {{- range .Values.monitoring.secretMounts }}
+        - name: {{ .name }}
+          mountPath: {{ .path }}
+          {{- if .subPath }}
+          subPath: {{ .subPath }}
+          {{- end }}
+        {{- end }}
+        - name: config
+          mountPath: /etc/heartbeat.yml
+          readOnly: true
+          subPath: heartbeat.yml
+        - name: data
+          mountPath: /usr/share/heartbeat/data
+      volumes:
+      {{- range .Values.monitoring.secretMounts }}
+      - name: {{ .name }}
+        secret:
+          secretName: {{ .secretName }}
+      {{- end }}
+      - name: config
+        configMap:
+          defaultMode: 0600
+          name: heartbeat-deployment-config
+      - name: data
+        hostPath:
+          path: /var/lib/heartbeat-data
+          type: DirectoryOrCreate
+
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: heartbeat
+subjects:
+- kind: ServiceAccount
+  name: heartbeat
+  namespace: observability
+roleRef:
+  kind: ClusterRole
+  name: heartbeat
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: heartbeat
+  labels:
+    k8s-app: heartbeat
+rules:
+- apiGroups: [""]
+  resources:
+  - nodes
+  - namespaces
+  - pods
+  - services
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources:
+    - replicasets
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: heartbeat
+  namespace: observability
+  labels:
+    k8s-app: heartbeat
+---
