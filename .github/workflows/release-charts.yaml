@@ -30,9 +30,9 @@ jobs:
         with:
           version: ${{ env.HELM_VERSION_TO_INSTALL }}
 
-      - name: login to acr using helm
-        run: |
-          echo "${{ secrets.ACR_PUSH_TOKEN }}" | helm registry login ${{ env.ACR_NAME }}.azurecr.io --username "${{ secrets.ACR_PUSH_USER }}" --password-stdin
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Run chart-releaser
         uses: iamjohnnym/chart-releaser-action@v1.2.8
