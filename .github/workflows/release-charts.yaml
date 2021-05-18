@@ -35,7 +35,7 @@ jobs:
           echo "${{ secrets.ACR_PUSH_TOKEN }}" | helm registry login ${{ env.ACR_NAME }}.azurecr.io --username "${{ secrets.ACR_PUSH_USER }}" --password-stdin
 
       - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.2.0
+        uses: iamjohnnym/chart-releaser-action@v1.2.1
         env:
           CR_TOKEN: "${{ secrets.ACR_PUSH_TOKEN }}"
           CR_CHARTS_REPO_URL: https://${{ env.ACR_NAME }}.azurecr.io/${{ env.ACR_REPO_NAME }}
