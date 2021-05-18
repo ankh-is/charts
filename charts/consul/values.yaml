@@ -5,16 +5,55 @@ charts:
 # Consul Overrides
 consul:
   global:
-    datacenter: auw2
+    datacenter: dc1
     tls:
       enabled: true
       enableAutoEncrypt: true
+      caCert:
+        secretName: consul-ca-certs
+        secretKey: tls.crt
+      caKey:
+        secretName: consul-ca-certs
+        secretKey: tls.key
+    gossipEncryption:
+      secretName: consul-gossip-encryption-key
+      secretKey: key
     acls:
       manageSystemACLs: true
-      createReplicationToken: false  # set to true for the primary datacenter install
+      createReplicationToken: false # set to true for the primary datacenter install
     federation:
       enabled: true
-      createFederationSecret: false  # set to true for the primary datacenter install
+      createFederationSecret: false # set to true for the primary datacenter install
+  server:
+    exposeGossipAndRPCPorts: true
+    ports:
+      serflan:
+        port: 9301
+    #extraConfig: |
+    #  {
+    #    "connect": {
+    #        "enabled": true,
+    #        "ca_provider": "consul",
+    #        "ca_config": {
+    #            "root_cert": "{{.Cacert}}",
+    #            "private_key": "{{.Cakey}}"
+    #        }
+    #    },
+    #    "auto_config": {
+    #        "authorization": {
+    #            "enabled": true,
+    #            "static": {
+    #                "jwt_validation_pub_keys": ["{{.Cacert}}"],
+    #                "jwt_supported_algs": ["ES384"],
+    #                "expiration_leeway": "-1ns",
+    #                "not_before_leeway": "-1ns",
+    #                "clock_skew_leeway": "-1ns"
+    #            }
+    #        }
+    #    }
+    #  }
+  syncCatalog:
+    enabled: true
   connectInject:
     enabled: true
   meshGateway:
@@ -26,6 +65,7 @@ consul:
   controller:
     enabled: true
   client:
+    exposeGossipPorts: true
     tolerations: |
       - key: "sku"
         operator: "Equal"
