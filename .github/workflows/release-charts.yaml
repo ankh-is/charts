@@ -38,6 +38,7 @@ jobs:
         uses: iamjohnnym/chart-releaser-action@v1.2.2
         with:
           owner: ankhis
+          charts_repo_url: https://${{ env.ACR_NAME }}.azurecr.io/charts
         env:
           CR_VERSION: v1.2.2
           CR_TOKEN: "${{ secrets.ACR_PUSH_TOKEN }}"
