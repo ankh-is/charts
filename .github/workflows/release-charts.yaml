@@ -36,6 +36,8 @@ jobs:
 
       - name: Run chart-releaser
         uses: iamjohnnym/chart-releaser-action@v1.2.2
+        with:
+          owner: ankhis
         env:
           CR_VERSION: v1.2.2
           CR_TOKEN: "${{ secrets.ACR_PUSH_TOKEN }}"
@@ -43,4 +45,3 @@ jobs:
           CR_GIT_BASE_URL: https://${{ env.ACR_NAME }}.azurecr.io/
           CR_GIT_UPLOAD_URL: https://${{ env.ACR_NAME }}.azurecr.io/
           CR_GIT_REPO: ${{ env.ACR_REPO_NAME }}
-          CR_OWNER: github
