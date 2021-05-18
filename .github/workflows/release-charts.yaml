@@ -8,7 +8,7 @@ on:
 env:
   HELM_EXPERIMENTAL_OCI: 1
   HELM_VERSION_TO_INSTALL: 3.5.4
-  ACR_NAME: acrdemoutkarsh
+  ACR_NAME: ankhis
   ACR_REPO_NAME: ankhis/charts
 
 jobs:
