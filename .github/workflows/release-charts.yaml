@@ -40,5 +40,6 @@ jobs:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           CR_CHARTS_REPO_URL: https://${{ env.ACR_NAME }}.azurecr.io/${{ env.ACR_REPO_NAME }}
           CR_GIT_BASE_URL: https://${{ env.ACR_NAME }}.azurecr.io/
+          CR_GIT_UPLOAD_URL: https://${{ env.ACR_NAME }}.azurecr.io/
           CR_GIT_REPO: ${{ env.ACR_REPO_NAME }}
           CR_OWNER: github
