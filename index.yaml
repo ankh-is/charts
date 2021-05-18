@@ -21,6 +21,27 @@ entries:
     urls:
     - https://github.com/ankh-is/charts/releases/download/Consul-0.1.1/Consul-0.1.1.tgz
     version: 0.1.1
+  consul:
+  - annotations:
+      category: Infrastructure
+    apiVersion: v2
+    appVersion: 1.16.0
+    created: "2021-05-18T05:35:35.755296142Z"
+    dependencies:
+    - condition: charts.consul
+      name: consul
+      repository: https://helm.releases.hashicorp.com
+      version: 0.30.0
+    description: Ankh managed consul helm chart
+    digest: 27274fb2d540e1850ab957e9d9a99c97e901849b7b7762849048b9859d44564c
+    maintainers:
+    - email: nerds@ankh.is
+      name: Ankh
+    name: consul
+    type: application
+    urls:
+    - https://github.com/ankh-is/charts/releases/download/consul-0.1.2/consul-0.1.2.tgz
+    version: 0.1.2
   elasticsearch:
   - annotations:
       category: Infrastructure
@@ -159,4 +180,4 @@ entries:
     urls:
     - https://github.com/ankh-is/charts/releases/download/metricbeat-0.1.0/metricbeat-0.1.0.tgz
     version: 0.1.0
-generated: "2021-04-30T05:00:34.359390403Z"
+generated: "2021-05-18T05:35:35.755313342Z"
