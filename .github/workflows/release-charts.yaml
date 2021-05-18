@@ -30,19 +30,13 @@ jobs:
         with:
           version: ${{ env.HELM_VERSION_TO_INSTALL }}
 
-      - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.2.0
-        env:
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-
       - name: login to acr using helm
         run: |
           echo "${{ secrets.ACR_PUSH_TOKEN }}" | helm registry login ${{ env.ACR_NAME }}.azurecr.io --username "${{ secrets.ACR_PUSH_USER }}" --password-stdin
 
-      - name: save helm chart to local registry
-        run: |
-          helm chart save ./charts/ ${{ env.ACR_NAME }}.azurecr.io/${{ env.ACR_REPO_NAME }}:latest
-
-      - name: publish chart to acr
-        run: |
-          helm chart push ${{ env.ACR_NAME }}.azurecr.io/${{ env.ACR_REPO_NAME }}:latest
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.2.0
+        with:
+          charts_repo_url: ${{ env.ACR_NAME }}.azurecr.io/${{ env.ACR_REPO_NAME }}
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
